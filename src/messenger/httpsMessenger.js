@@ -5,12 +5,12 @@ const https = require('https');
 import type {InMessageType, OutMessageType} from './messageTypes';
 
 class HttpsMessenger {
-  identification: String;
-  hostname: String;
-  path: String;
-  port: Number;
+  identification: string;
+  hostname: string;
+  path: string;
+  port: number;
 
-  constructor(identification: String, hostname: String, path: String, port: Number) {
+  constructor(identification: string, hostname: string, path: string, port: number) {
     this.identification = identification;
     this.hostname = hostname;
     this.path = path;
@@ -60,7 +60,10 @@ class HttpsMessenger {
     });
 
     req.on('error', (error) => {
-        console.error(error);
+      // console.error('https messenger encounter error:', error);
+      if (cb) {
+        cb({httpCode: -1});
+      }
     })
 
     req.write(data);

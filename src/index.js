@@ -28,6 +28,8 @@ const path = process.argv[4];
 const port = parseInt(process.argv[5]);
 
 const HttpsMessenger = require('./messenger/httpsMessenger');
+const WorkerMaster = require('./master');
+
 console.log('index.js');
 const messenger = new HttpsMessenger(identification,
                                      hostname,
@@ -35,11 +37,14 @@ const messenger = new HttpsMessenger(identification,
                                      port);
 import type {OutMessageType} from './messenger/messageTypes';
 
-messenger.syncHttps({
-  isPlaying: false,
-  ipAddress: "",
-}, (outMessage: OutMessageType) => {
-  console.log(outMessage);
-});
+const master = new WorkerMaster(messenger);
+
+// Example of using messenger
+// messenger.syncHttps({
+//   isPlaying: false,
+//   ipAddress: "",
+// }, (outMessage: OutMessageType) => {
+//   console.log(outMessage);
+// });
 
 

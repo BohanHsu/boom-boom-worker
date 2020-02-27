@@ -1,9 +1,9 @@
 export type OutMessageType = {
-  isPlaying?: Boolean,
-  ipAddress?: String,
+  isPlaying?: boolean,
+  ipAddress?: string,
 };
 
 export type InMessageType = {
-  httpCode: Number,
-  shouldPlay?: Boolean,
+  httpCode: number,
+  shouldPlay?: boolean,
 };
