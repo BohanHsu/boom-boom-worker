@@ -19,7 +19,7 @@ class HttpsMessenger {
 
   syncHttps(outMessage: OutMessageType, cb: (OutMessageType) => void): void {
     console.error('[httpsMessenger] https messenger syncHttp:', outMessage);
-    const data = JSON.stringify({"whoami":this.identification, "isPlaying": false});
+    const data = JSON.stringify({"whoami":this.identification, "isPlaying": outMessage.isPlaying});
 
     const options = {
       hostname: this.hostname,
