@@ -2,20 +2,40 @@
 
 const HttpsMessenger = require('./messenger/httpsMessenger');
 // const Mp3 = require('./mp3/mp3');
+const Operator = require('./playerOperator/operator');
 
 class WorkerMaster {
   _shouldPlay: boolean;
   _syncSuccessFinishTime: number;
 
   _messenger: HttpsMessenger;
+  _mp3FilePath: string;
 
-  constructor(messenger: HttpsMessenger) {
+  _playerOperator: ?Operator;
+
+  constructor(messenger: HttpsMessenger, mp3FilePath: string) {
     this._shouldPlay = false;
     this._syncSuccessFinishTime = -1;
 
     this._messenger = messenger;
+    console.log("xbh3", mp3FilePath);
+    this._mp3FilePath = mp3FilePath;
 
     this.keepSyncWithControlTower();
+    console.log('xbh1');
+    this._startOperator();
+  }
+
+  _startOperator(): void {
+    console.log("xbh2", this._playerOperator);
+    if (this._playerOperator == null) {
+      console.log('[master _startOperator]', this._mp3FilePath);
+      this._playerOperator = new Operator(this._mp3FilePath, this);
+    }
+  }
+
+  getShouldPlay(): boolean {
+    return this._shouldPlay;
   }
 
   syncWithControlTower(): void {
@@ -28,10 +48,10 @@ class WorkerMaster {
     }
 
     console.log('WorkerMaster sync with control tower, timestamp', currentTimestamp);
-    // _syncSuccessFinishTime = currentTimestamp;
 
+    const isPlaying = !!(this._playerOperator && this._playerOperator.isPlaying());
 
-    this._messenger.syncHttps({isPlaying: false}, (outMessage) => {
+    this._messenger.syncHttps({isPlaying}, (outMessage) => {
       if (outMessage.httpCode !== 200) {
         this._shouldPlay = false;
       }
@@ -51,26 +71,3 @@ class WorkerMaster {
 }
 
 module.exports = WorkerMaster;
-
-
-
-// const Mp3 = require('./mp3/mp3');
-// const Player = require('./mp3/player');
-// const PlayerController = require('./mp3/playerController');
-// 
-// const mp3s = [new Mp3(`/Users/bohanxu/Downloads/short.mp3`),
-//   new Mp3(`/Users/bohanxu/Downloads/short.mp3`),
-//   //new Mp3(`/Users/bohanxu/Downloads/short.mp3`),
-//   //new Mp3(`/Users/bohanxu/Downloads/short.mp3`), 
-//   /*new Mp3(`/Users/bohanxu/Downloads/short.mp3`)*/];
-// 
-// 
-// const playerController = new PlayerController();
-// 
-// const player = new Player(playerController, mp3s);
-// 
-// playerController.startPlayer();
-// 
-// setTimeout(() => {
-//   playerController.stopPlayer();
-// }, 10000);

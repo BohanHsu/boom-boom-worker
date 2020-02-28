@@ -5,10 +5,10 @@ const player = require('play-sound')(opts = {})
 
 class Mp3 {
   _audio: any;
-  _filePath: String;
+  _filePath: string;
   _playFinishCallback: ?(() => void);
 
-  constructor(filePath: String) {
+  constructor(filePath: string) {
     this._filePath = filePath;
     this._playFinishCallback = null;
   }

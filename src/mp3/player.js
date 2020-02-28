@@ -39,6 +39,7 @@ class Player {
     if (toPlayIdx === 0 && this._playedCnt !== 0) {
       // query controller whether to loop
       if (!this._controller.shouldLoop()) {
+        this._controller.playerStoped();
         return;
       }
     }

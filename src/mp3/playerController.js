@@ -16,8 +16,8 @@ class PlayerController {
   }
 
   shouldLoop(): boolean {
-    //return false;
-    return true;
+    // return true;
+    return false;
   }
 
   isPlaying(): boolean {
@@ -37,6 +37,11 @@ class PlayerController {
       this._player.onControllerReceiveStop();
     }
   }
+
+  playerStoped(): void {
+    this._isPlaying = false;
+  }
+
 }
 
 module.exports = PlayerController;

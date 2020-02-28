@@ -18,6 +18,7 @@ class HttpsMessenger {
   }
 
   syncHttps(outMessage: OutMessageType, cb: (OutMessageType) => void): void {
+    console.error('[httpsMessenger] https messenger syncHttp:', outMessage);
     const data = JSON.stringify({"whoami":this.identification, "isPlaying": false});
 
     const options = {
@@ -60,7 +61,7 @@ class HttpsMessenger {
     });
 
     req.on('error', (error) => {
-      // console.error('https messenger encounter error:', error);
+      console.error('[httpsMessenger] https messenger encounter error:', error);
       if (cb) {
         cb({httpCode: -1});
       }
