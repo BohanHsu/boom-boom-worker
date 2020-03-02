@@ -48,7 +48,7 @@ class HttpsMessenger {
       res.on('end', () => {
         if (httpCode !== 200) {
           if (cb) {
-            cb({httpCode});
+            cb({httpCode, globalSwitch:false});
           }
 
           return;
@@ -58,6 +58,7 @@ class HttpsMessenger {
         if (cb) {
           let inMessage:any = {
             httpCode,
+            globalSwitch: jsonBody.globalSwitch,
             shouldPlay: jsonBody.shouldPlay,
           };
           const duang = jsonBody.duang;

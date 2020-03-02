@@ -49,7 +49,16 @@ class DuangOperator {
 
   _syncWithWorkerMaster(): void {
     console.log('[duang play operator] _syncWithWorkerMaster');
+
+    const globalSwitch = this._getGlobalSwitch();
+
     if (this._playerController && this._playerController.isPlaying()) {
+
+      if (!globalSwitch) {
+        console.log('[duang play operator] _syncWithWorkerMaster: force stop duang');
+        this._makeSureStopDuang();
+      }
+
       console.log('[duang play operator] _syncWithWorkerMaster: isplaying early return 1');
       return;
     }
@@ -61,6 +70,31 @@ class DuangOperator {
     if (this._currentDuangRequestId) {
       this._makeSureDuang();
     }
+  }
+
+  _makeSureStopDuang(): void {
+    const playerController = this._playerController;
+    if (playerController) {
+      playerController.stopPlayer();
+    }
+
+    const handledRequestId = this._currentDuangRequestId || '';
+    this._duangRequestHandled.push({
+      requestId: handledRequestId, 
+      duangPlayed: false, 
+      rejectReason: "Duang Play interrupted by global switch",
+    });
+    this._playerController = null;
+    this._currentDuangRequestId = null;
+  }
+
+  _getGlobalSwitch(): boolean {
+    const workerMaster = this._workerMaster;
+    if (workerMaster) {
+      return workerMaster.getGlobalSwitch();
+    }
+
+    return false;
   }
 
   _getNextDuangRequestIdFromMaster(): ?string {

@@ -9,6 +9,7 @@ export type OutMessageType = {
 
 export type InMessageType = {
   httpCode: number,
+  globalSwitch: boolean,
   shouldPlay?: boolean,
   duang?: string,
 };

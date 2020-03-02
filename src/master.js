@@ -8,6 +8,7 @@ import type {HandledDuangRequest} from './playerOperator/duangOperator';
 import type {InMessageType, OutMessageType} from './messenger/messageTypes';
 
 class WorkerMaster {
+  _globalSwitch: boolean;
   _shouldPlay: boolean;
   _duangRequestQueue: Array<string>;
   _syncSuccessFinishTime: number;
@@ -19,6 +20,7 @@ class WorkerMaster {
   _duangOperator: ?DuangOperator;
 
   constructor(messenger: HttpsMessenger, mp3FilePath: string) {
+    this._globalSwitch = false;
     this._shouldPlay = false;
     this._duangRequestQueue = [];
 
@@ -47,8 +49,12 @@ class WorkerMaster {
     }
   }
 
+  getGlobalSwitch(): boolean {
+    return this._globalSwitch;
+  }
+
   getShouldPlay(): boolean {
-    return this._shouldPlay;
+    return this._globalSwitch && this._shouldPlay;
   }
 
   getNextDuangRequestId(): ?string {
@@ -93,6 +99,7 @@ class WorkerMaster {
       }
 
       this._syncSuccessFinishTime = Math.floor(new Date() / 1);
+      this._globalSwitch = inMessage.globalSwitch;
       this._shouldPlay = !!inMessage.shouldPlay;
 
 
