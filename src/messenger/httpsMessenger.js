@@ -17,9 +17,13 @@ class HttpsMessenger {
     this.port = port;
   }
 
-  syncHttps(outMessage: OutMessageType, cb: (OutMessageType) => void): void {
+  syncHttps(outMessage: OutMessageType, cb: (InMessageType) => void): void {
     console.error('[httpsMessenger] https messenger syncHttp:', outMessage);
-    const data = JSON.stringify({"whoami":this.identification, "isPlaying": outMessage.isPlaying});
+    const data = JSON.stringify({
+      whoami:this.identification, 
+      isPlaying: outMessage.isPlaying,
+      duang: outMessage.duang,
+    });
 
     const options = {
       hostname: this.hostname,
@@ -52,10 +56,15 @@ class HttpsMessenger {
 
         const jsonBody = JSON.parse(body);
         if (cb) {
-          cb({
+          let inMessage:any = {
             httpCode,
             shouldPlay: jsonBody.shouldPlay,
-          });
+          };
+          const duang = jsonBody.duang;
+          if (duang) {
+            inMessage['duang'] = duang;
+          }
+          cb(inMessage);
         }
       });
     });
