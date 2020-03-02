@@ -5,6 +5,7 @@ const Player = require('./player');
 class PlayerController {
   _player: ?Player;
   _isPlaying: boolean;
+  _playerFinishedCallback: ?(() => void);
 
   constructor() {
     this._player = null;
@@ -38,8 +39,15 @@ class PlayerController {
     }
   }
 
+  setPlayerFinishCallback(cb: (() => void)): void {
+    this._playerFinishedCallback = cb;
+  }
+
   playerStoped(): void {
     this._isPlaying = false;
+    if (this._playerFinishedCallback) {
+      this._playerFinishedCallback();
+    }
   }
 
 }
