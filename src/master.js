@@ -1,6 +1,7 @@
 // @flow
 
 const HttpsMessenger = require('./messenger/httpsMessenger');
+const Ip = require('./ip/ip');
 const Operator = require('./playerOperator/operator');
 const DuangOperator = require('./playerOperator/duangOperator');
 
@@ -18,6 +19,7 @@ class WorkerMaster {
 
   _playerOperator: ?Operator;
   _duangOperator: ?DuangOperator;
+  _ip: Ip;
 
   constructor(messenger: HttpsMessenger, mp3FilePath: string) {
     this._globalSwitch = false;
@@ -29,11 +31,15 @@ class WorkerMaster {
     this._messenger = messenger;
     this._mp3FilePath = mp3FilePath;
 
-    this.keepSyncWithControlTower();
-    this._startOperator();
+    this._ip = new Ip();
 
+    this.keepSyncWithControlTower();
+
+    this._startOperator();
     this._startDuangOperator();
   }
+
+
 
   _startOperator(): void {
     if (this._playerOperator == null) {
@@ -81,6 +87,12 @@ class WorkerMaster {
 
     let outMessage:OutMessageType = {isPlaying};
 
+    const ipAddress = this._ip.getCurrentIp();
+    console.log('[WorkerMaster get current IP]', ipAddress);
+
+    if (ipAddress) {
+      outMessage.ip = ipAddress;
+    }
 
     let nextHandledDuangRequest: ?HandledDuangRequest = null;
     const duangOperator = this._duangOperator;
