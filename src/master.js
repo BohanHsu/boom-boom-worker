@@ -2,7 +2,7 @@
 
 const HttpsMessenger = require('./messenger/httpsMessenger');
 const Ip = require('./ip/ip');
-const Operator = require('./playerOperator/operator');
+const ShouldPlayOperator = require('./playerOperator/shouldPlayOperator');
 const DuangOperator = require('./playerOperator/duangOperator');
 
 import type {HandledDuangRequest} from './playerOperator/duangOperator';
@@ -17,7 +17,7 @@ class WorkerMaster {
   _messenger: HttpsMessenger;
   _mp3FilePath: string;
 
-  _playerOperator: ?Operator;
+  _shouldPlayOperator: ?ShouldPlayOperator;
   _duangOperator: ?DuangOperator;
   _ip: Ip;
 
@@ -42,9 +42,9 @@ class WorkerMaster {
 
 
   _startOperator(): void {
-    if (this._playerOperator == null) {
-      console.log('[master _startOperator]', this._mp3FilePath);
-      this._playerOperator = new Operator(this._mp3FilePath, this);
+    if (this._shouldPlayOperator == null) {
+      console.log('[master _startShouldPlayOperator]', this._mp3FilePath);
+      this._shouldPlayOperator = new ShouldPlayOperator(this._mp3FilePath, this);
     }
   }
 
@@ -83,7 +83,7 @@ class WorkerMaster {
 
     console.log('WorkerMaster sync with control tower, timestamp', currentTimestamp);
 
-    const isPlaying = !!(this._playerOperator && this._playerOperator.isPlaying());
+    const isPlaying = !!(this._shouldPlayOperator && this._shouldPlayOperator.isPlaying());
 
     let outMessage:OutMessageType = {isPlaying};
 

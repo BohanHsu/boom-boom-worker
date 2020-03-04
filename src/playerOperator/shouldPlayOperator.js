@@ -5,7 +5,7 @@ const Player = require('../mp3/player');
 const PlayerController = require('../mp3/playerController');
 const WorkerMaster = require('../master');
 
-class Operator {
+class ShouldPlayOperator {
   _mp3FilePath: string;
   _playerController: ?PlayerController;
   _workerMaster: WorkerMaster;
@@ -117,4 +117,4 @@ class Operator {
   }
 }
 
-module.exports = Operator;
+module.exports = ShouldPlayOperator;
