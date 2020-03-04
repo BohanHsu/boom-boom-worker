@@ -71,6 +71,11 @@ class WorkerMaster {
     return null;
   }
 
+  _getIsPlayingForAllOperators(): boolean {
+    return !!(this._shouldPlayOperator && this._shouldPlayOperator.isPlaying()) || 
+      !!(this._duangOperator && this._duangOperator.isPlaying());
+  }
+
   syncWithControlTower(): void {
     const currentTimestamp = Math.floor(new Date() / 1);
 
@@ -83,7 +88,7 @@ class WorkerMaster {
 
     console.log('WorkerMaster sync with control tower, timestamp', currentTimestamp);
 
-    const isPlaying = !!(this._shouldPlayOperator && this._shouldPlayOperator.isPlaying());
+    const isPlaying = this._getIsPlayingForAllOperators();
 
     let outMessage:OutMessageType = {isPlaying};
 

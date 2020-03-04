@@ -1,33 +1,30 @@
 // @flow
 
 const Mp3 = require('../mp3/mp3');
-const Player = require('../mp3/player');
-const PlayerController = require('../mp3/playerController');
 const WorkerMaster = require('../master');
+const PlayerOperator = require('./playerOperator');
 
 class ShouldPlayOperator {
   _mp3FilePath: string;
-  _playerController: ?PlayerController;
   _workerMaster: WorkerMaster;
 
-  _isPlaying: boolean;
-  _nextPlayDelayMS: number;
-  _intermittentPlayTimeout: ?any;
+  _playerOperator: ?PlayerOperator;
 
   constructor(mp3FilePath: string, workerMaster: WorkerMaster) {
     this._mp3FilePath = mp3FilePath;
-    this._playerController = null;
 
-    this._isPlaying = false;
-    this._nextPlayDelayMS = 0;
-    this._intermittentPlayTimeout = null;
+    this._playerOperator = null;
 
     this._workerMaster = workerMaster;
     this._keepSyncWithMaster();
   }
 
   isPlaying(): boolean {
-    return this._isPlaying;
+    const playerOperator = this._playerOperator;
+    if (!playerOperator) {
+      return false;
+    }
+    return playerOperator.isPlaying();
   }
 
   _keepSyncWithMaster() {
@@ -51,69 +48,34 @@ class ShouldPlayOperator {
   }
 
   _makeSurePlay() {
-    console.log('[should play operator] _makeSurePlay');
-    if (this._playerController && this._playerController.isPlaying()) {
-      console.log('[should play operator] _makeSurePlay early return 1');
+    let playerOperator = this._playerOperator;
+    if (playerOperator && playerOperator.isPlaying()) {
       return;
     }
 
-    if (this._intermittentPlayTimeout != null) {
-      console.log('[should play operator] _makeSurePlay early return 2');
-      return;
+    if (playerOperator) {
+      playerOperator.stopPlay();
+      playerOperator = null;
     }
 
-    console.log('[should play operator] _makeSurePlay before _intermittentPlay');
-    this._intermittentPlay();
+    playerOperator = new PlayerOperator(
+      [this._mp3FilePath],
+      true,
+      -1,
+      -1,
+      1000,
+      10000,
+      null,
+    );
+    playerOperator.startPlay();
+    this._playerOperator = playerOperator;
   }
 
   _makeSureNotPlay() {
-    if (this._intermittentPlayTimeout != null) {
-      clearTimeout(this._intermittentPlayTimeout);
-      this._intermittentPlayTimeout = null;
+    let playerOperator = this._playerOperator;
+    if (playerOperator) {
+      playerOperator.stopPlay();
     }
-
-    if (this._playerController && this._playerController.isPlaying()) {
-      this._playerController.stopPlayer();
-    }
-
-    if (this._playerController && !this._playerController.isPlaying()) {
-      this._playerController = null;
-    }
-
-    this._isPlaying = false;
-    this._nextPlayDelayMS = 0;
-  }
-
-  _intermittentPlay() {
-    console.log('[should play operator] _intermittentPlay');
-
-    this._isPlaying = true;
-    if (this._nextPlayDelayMS === 0) {
-      this._singleShootOfPlay();
-    }
-
-    if (this._nextPlayDelayMS > 0) {
-      console.log('[should play operator] wait for delay:', this._nextPlayDelayMS);
-      this._intermittentPlayTimeout = setTimeout(() => {
-        clearTimeout(this._intermittentPlayTimeout);
-        this._intermittentPlayTimeout = null;
-        this._singleShootOfPlay();
-      }, this._nextPlayDelayMS);
-    }
-
-    this._nextPlayDelayMS = 10000;
-  }
-
-  _singleShootOfPlay() {
-    console.log('[should play operator] _singleShootOfPlay');
-    const mp3s = [new Mp3(this._mp3FilePath)];
-
-    this._playerController = new PlayerController();
-
-    const player = new Player(this._playerController, mp3s);
-
-    this._isPlaying = true;
-    this._playerController.startPlayer();
   }
 }
 

@@ -2,8 +2,8 @@
 
 const Mp3 = require('../mp3/mp3');
 const Player = require('../mp3/player');
-const PlayerController = require('../mp3/playerController');
 const WorkerMaster = require('../master');
+const PlayerOperator = require('./playerOperator');
 
 export type HandledDuangRequest = {
   requestId: string,
@@ -13,7 +13,7 @@ export type HandledDuangRequest = {
 
 class DuangOperator {
   _mp3FilePath: string;
-  _playerController: ?PlayerController;
+  _playerOperator: ?PlayerOperator;
   _workerMaster: WorkerMaster;
 
   _currentDuangRequestId: ?string;
@@ -23,12 +23,20 @@ class DuangOperator {
   constructor(mp3FilePath: string, workerMaster: WorkerMaster) {
     this._mp3FilePath = mp3FilePath;
     this._workerMaster = workerMaster;
-    this._playerController = null;
 
     this._currentDuangRequestId = null;
 
     this._duangRequestHandled = [];
     this._keepSyncWithMaster();
+  }
+
+  isPlaying(): boolean {
+    const playerOperator = this._playerOperator;
+    if (playerOperator) {
+      return playerOperator.isPlaying();
+    }
+
+    return false;
   }
 
   getNextHandledRequest(): ?HandledDuangRequest {
@@ -52,7 +60,8 @@ class DuangOperator {
 
     const globalSwitch = this._getGlobalSwitch();
 
-    if (this._playerController && this._playerController.isPlaying()) {
+    const playerOperator = this._playerOperator;
+    if (playerOperator && playerOperator.isPlaying()) {
 
       if (!globalSwitch) {
         console.log('[duang play operator] _syncWithWorkerMaster: force stop duang');
@@ -70,22 +79,6 @@ class DuangOperator {
     if (this._currentDuangRequestId) {
       this._makeSureDuang();
     }
-  }
-
-  _makeSureStopDuang(): void {
-    const playerController = this._playerController;
-    if (playerController) {
-      playerController.stopPlayer();
-    }
-
-    const handledRequestId = this._currentDuangRequestId || '';
-    this._duangRequestHandled.push({
-      requestId: handledRequestId, 
-      duangPlayed: false, 
-      rejectReason: "Duang Play interrupted by global switch",
-    });
-    this._playerController = null;
-    this._currentDuangRequestId = null;
   }
 
   _getGlobalSwitch(): boolean {
@@ -107,9 +100,27 @@ class DuangOperator {
     return duangRequestId;
   }
 
+  _makeSureStopDuang(): void {
+    const playerOperator = this._playerOperator;
+    if (playerOperator) {
+      playerOperator.stopPlay();
+    }
+    this._playerOperator = null;
+
+    const handledRequestId = this._currentDuangRequestId || '';
+    this._duangRequestHandled.push({
+      requestId: handledRequestId, 
+      duangPlayed: false, 
+      rejectReason: "Duang Play interrupted by global switch",
+    });
+    this._currentDuangRequestId = null;
+  }
+
+
   _makeSureDuang(): void {
     console.log('[duang play operator] _makeSureDuang');
-    if (this._playerController && this._playerController.isPlaying()) {
+    const playerOperator = this._playerOperator;
+    if (playerOperator && playerOperator.isPlaying()) {
       // already playing
       console.log('[duang play operator] _makeSureDuang already playing');
       return;
@@ -120,20 +131,26 @@ class DuangOperator {
 
   _duang(): void {
     console.log('[duang play operator] _duang');
-    const mp3s = [new Mp3(this._mp3FilePath)];
+    const mp3s = [this._mp3FilePath];
+    const playerOperator = new PlayerOperator(
+      mp3s,
+      false,
+      1,
+      3,
+      1000,
+      3000,
+      () => {
+        this._duangFinished();
+      },
+    );
 
-    const playerController = new PlayerController();
-    playerController.setPlayerFinishCallback(() => {this._duangFinished()});
-
-    const player = new Player(playerController, mp3s);
-
-    playerController.startPlayer();
-    this._playerController = playerController;
+    playerOperator.startPlay();
+    this._playerOperator = playerOperator;
   }
 
   _duangFinished(): void {
     console.log('[duang play operator] _duangFinished', this._currentDuangRequestId);
-    this._playerController = null;
+    this._playerOperator = null;
 
     const handledRequestId = this._currentDuangRequestId || '';
 
