@@ -23,6 +23,7 @@ class HttpsMessenger {
       whoami:this.identification, 
       isPlaying: outMessage.isPlaying,
       duang: outMessage.duang,
+      ip: outMessage.ip,
     });
 
     const options = {

@@ -1,10 +1,11 @@
 export type OutMessageType = {
   isPlaying?: boolean,
-  ipAddress?: string,
+  ip?: string,
   duang?: {
     requestId: string, 
     duangPlayed: boolean, 
-    rejectReason?: string},
+    rejectReason?: string
+  },
 };
 
 export type InMessageType = {
