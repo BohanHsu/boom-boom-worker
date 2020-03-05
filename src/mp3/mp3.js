@@ -3,6 +3,8 @@
 //$FlowFixMe
 const player = require('play-sound')(opts = {})
 
+const logger = require('../logger/logger');
+
 class Mp3 {
   _audio: any;
   _filePath: string;
@@ -26,7 +28,7 @@ class Mp3 {
   _play(): void {
     this._audio = player.play(this._filePath, (err) => {
       if (err) {
-        console.log("err:", err);
+        logger.log("err:", err);
       }
 
       if (this._playFinishCallback) {

@@ -1,6 +1,8 @@
 // @flow
 const ip = require('ip');
 
+const logger = require('../logger/logger');
+
 class Ip {
   _ipAddress: ?string;
   _timerId: ?any;
@@ -20,7 +22,7 @@ class Ip {
 
   _queryCurrentIp(): void {
     this._ipAddress = ip.address();
-    console.log('[Ip queryCurrentIp] latest IP value: ', this._ipAddress);
+    logger.log('[Ip queryCurrentIp] latest IP value: ', this._ipAddress);
   }
 
   getCurrentIp(): ?string {

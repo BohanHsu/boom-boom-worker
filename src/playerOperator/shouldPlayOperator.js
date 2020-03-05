@@ -4,6 +4,8 @@ const Mp3 = require('../mp3/mp3');
 const WorkerMaster = require('../master');
 const PlayerOperator = require('./playerOperator');
 
+const logger = require('../logger/logger');
+
 class ShouldPlayOperator {
   _mp3FilePath: string;
   _workerMaster: WorkerMaster;
@@ -28,7 +30,7 @@ class ShouldPlayOperator {
   }
 
   _keepSyncWithMaster() {
-    console.log('[should play operator] _keepSyncWithMaster');
+    logger.log('[should play operator] _keepSyncWithMaster');
     this._syncWithWorkerMaster();
     let timer = setInterval(() => {
       this._syncWithWorkerMaster();
@@ -38,7 +40,7 @@ class ShouldPlayOperator {
   _syncWithWorkerMaster() {
     const shouldPlay = this._workerMaster.getShouldPlay();
 
-    console.log('[should play operator] _syncWithWorkerMaster: shouldPlay: ', shouldPlay);
+    logger.log('[should play operator] _syncWithWorkerMaster: shouldPlay: ', shouldPlay);
 
     if (shouldPlay) {
       this._makeSurePlay();

@@ -1,5 +1,3 @@
-console.log(process.argv);
-
 const identification = process.argv[2];
 const hostname = process.argv[3];
 const path = process.argv[4];
