@@ -1,6 +1,7 @@
 // @flow
 
 const https = require('https');
+const logger = require('../logger/logger');
 
 import type {InMessageType, OutMessageType} from './messageTypes';
 
@@ -18,7 +19,7 @@ class HttpsMessenger {
   }
 
   syncHttps(outMessage: OutMessageType, cb: (InMessageType) => void): void {
-    console.error('[httpsMessenger] https messenger syncHttp:', outMessage);
+    logger.log('[httpsMessenger] https messenger syncHttp:', outMessage)
     const data = JSON.stringify({
       whoami:this.identification, 
       isPlaying: outMessage.isPlaying,
@@ -72,7 +73,7 @@ class HttpsMessenger {
     });
 
     req.on('error', (error) => {
-      console.error('[httpsMessenger] https messenger encounter error:', error);
+      logger.error('[httpsMessenger] https messenger encounter error:', error);
       if (cb) {
         cb({httpCode: -1});
       }

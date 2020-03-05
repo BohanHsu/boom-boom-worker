@@ -4,6 +4,8 @@ const Mp3 = require('../mp3/mp3');
 const Player = require('../mp3/player');
 const PlayerController = require('../mp3/playerController');
 
+const logger = require('../logger/logger');
+
 class PlayerOperator {
   _mp3FilePaths: Array<string>;
   _infinityLoop: boolean;
@@ -46,22 +48,22 @@ class PlayerOperator {
     this._playedTimes = 0;
     this._killSwitched = false;
     this._finitePlayFinishedCallback = finitePlayFinishedCallback;
-    console.log('[PlayerOperator] construct: times to player:', this._timesToPlay);
+    logger.log('[PlayerOperator] construct: times to player:', this._timesToPlay);
   }
 
   startPlay(): void {
-    console.log('[PlayerOperator] startPlay');
+    logger.log('[PlayerOperator] startPlay');
     this._maybePlay();
   }
 
   stopPlay(): void {
-    console.log('[PlayerOperator] stopPlay');
+    logger.log('[PlayerOperator] stopPlay');
     this._killSwitched = true;
     this._makeSureStop();
   }
 
   isPlaying(): boolean {
-    console.log('[PlayerOperator] isPlaying: ', this._isPlaying);
+    logger.log('[PlayerOperator] isPlaying: ', this._isPlaying);
     return this._isPlaying;
   }
 
@@ -85,10 +87,10 @@ class PlayerOperator {
   }
 
   _maybePlay(): void {
-    console.log('[PlayerOperator] _play');
+    logger.log('[PlayerOperator] _play');
     if (!this._infinityLoop && this._playedTimes >= this._timesToPlay) {
       this._isPlaying = false;
-      console.log('[PlayerOperator] _play: early: played enough times', this._timesToPlay, this._playedTimes);
+      logger.log('[PlayerOperator] _play: early: played enough times', this._timesToPlay, this._playedTimes);
       const cb = this._finitePlayFinishedCallback;
       if (cb) {
         cb();
@@ -109,7 +111,7 @@ class PlayerOperator {
       nextPlayDelayMS = this._getRandomNumber(this._timeoutLowBoundaryMS, this._timeoutUpBoundaryMS);
     }
 
-    console.log('[PlayerOperator] _play delay for ', nextPlayDelayMS);
+    logger.log('[PlayerOperator] _play delay for ', nextPlayDelayMS);
     this._nextPlayTimeout = setTimeout(() => {
       clearTimeout(this._nextPlayTimeout);
       this._nextPlayTimeout = null;
@@ -120,7 +122,7 @@ class PlayerOperator {
   _playFinished(): void {
     this._playerController = null;
     this._playedTimes += 1;
-    console.log('[PlayerOperator] _playFinished, played times: ', this._playedTimes);
+    logger.log('[PlayerOperator] _playFinished, played times: ', this._playedTimes);
     this._maybePlay();
   }
 
@@ -128,7 +130,7 @@ class PlayerOperator {
     if (this._killSwitched) {
       return;
     }
-    console.log('[PlayerOperator] _singleShootOfPlay');
+    logger.log('[PlayerOperator] _singleShootOfPlay');
     this._isPlaying = true;
 
     const currentPlayerController = new PlayerController();
@@ -146,7 +148,7 @@ class PlayerOperator {
   }
 
   _makeSureStop(): void {
-    console.log('[PlayerOperator] _makeSureStop');
+    logger.log('[PlayerOperator] _makeSureStop');
     if (this._nextPlayTimeout) {
       clearTimeout(this._nextPlayTimeout);
     }

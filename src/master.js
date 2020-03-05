@@ -5,6 +5,8 @@ const Ip = require('./ip/ip');
 const ShouldPlayOperator = require('./playerOperator/shouldPlayOperator');
 const DuangOperator = require('./playerOperator/duangOperator');
 
+const logger = require('./logger/logger');
+
 import type {HandledDuangRequest} from './playerOperator/duangOperator';
 import type {InMessageType, OutMessageType} from './messenger/messageTypes';
 
@@ -43,14 +45,14 @@ class WorkerMaster {
 
   _startOperator(): void {
     if (this._shouldPlayOperator == null) {
-      console.log('[master _startShouldPlayOperator]', this._mp3FilePath);
+      logger.log('[master _startShouldPlayOperator]', this._mp3FilePath);
       this._shouldPlayOperator = new ShouldPlayOperator(this._mp3FilePath, this);
     }
   }
 
   _startDuangOperator(): void {
     if (this._duangOperator == null) {
-      console.log('[master _startDuangOperator]', this._mp3FilePath);
+      logger.log('[master _startDuangOperator]', this._mp3FilePath);
       this._duangOperator = new DuangOperator(this._mp3FilePath, this);
     }
   }
@@ -81,19 +83,19 @@ class WorkerMaster {
 
     // safety check
     if (this._syncSuccessFinishTime > 0 && currentTimestamp - this._syncSuccessFinishTime > 20000) {
-      console.log('triggered safety trap, set shouldPlay to false temporarily');
+      logger.log('triggered safety trap, set shouldPlay to false temporarily');
       this._shouldPlay = false;
       this._duangRequestQueue = [];
     }
 
-    console.log('WorkerMaster sync with control tower, timestamp', currentTimestamp);
+    logger.log('WorkerMaster sync with control tower, timestamp', currentTimestamp);
 
     const isPlaying = this._getIsPlayingForAllOperators();
 
     let outMessage:OutMessageType = {isPlaying};
 
     const ipAddress = this._ip.getCurrentIp();
-    console.log('[WorkerMaster get current IP]', ipAddress);
+    logger.log('[WorkerMaster get current IP]', ipAddress);
 
     if (ipAddress) {
       outMessage.ip = ipAddress;
@@ -124,7 +126,7 @@ class WorkerMaster {
         this._duangRequestQueue.push(inMessage.duang);
       }
 
-      console.log('WorkerMaster sync finish, shouldPlay', this._shouldPlay, this._duangRequestQueue);
+      logger.log('WorkerMaster sync finish, shouldPlay', this._shouldPlay, this._duangRequestQueue);
     });
   }
 

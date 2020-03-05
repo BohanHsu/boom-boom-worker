@@ -5,6 +5,8 @@ const Player = require('../mp3/player');
 const WorkerMaster = require('../master');
 const PlayerOperator = require('./playerOperator');
 
+const logger = require('../logger/logger');
+
 export type HandledDuangRequest = {
   requestId: string,
   duangPlayed: boolean,
@@ -47,7 +49,7 @@ class DuangOperator {
   }
 
   _keepSyncWithMaster() {
-    console.log('[duang play operator] _keepSyncWithMaster');
+    logger.log('[duang play operator] _keepSyncWithMaster');
     this._syncWithWorkerMaster();
 
     let timer = setInterval(() => {
@@ -56,7 +58,7 @@ class DuangOperator {
   }
 
   _syncWithWorkerMaster(): void {
-    console.log('[duang play operator] _syncWithWorkerMaster');
+    logger.log('[duang play operator] _syncWithWorkerMaster');
 
     const globalSwitch = this._getGlobalSwitch();
 
@@ -64,17 +66,17 @@ class DuangOperator {
     if (playerOperator && playerOperator.isPlaying()) {
 
       if (!globalSwitch) {
-        console.log('[duang play operator] _syncWithWorkerMaster: force stop duang');
+        logger.log('[duang play operator] _syncWithWorkerMaster: force stop duang');
         this._makeSureStopDuang();
       }
 
-      console.log('[duang play operator] _syncWithWorkerMaster: isplaying early return 1');
+      logger.log('[duang play operator] _syncWithWorkerMaster: isplaying early return 1');
       return;
     }
 
     this._currentDuangRequestId = this._getNextDuangRequestIdFromMaster();
 
-    console.log('[duang play operator] _syncWithWorkerMaster current requestId', this._currentDuangRequestId);
+    logger.log('[duang play operator] _syncWithWorkerMaster current requestId', this._currentDuangRequestId);
 
     if (this._currentDuangRequestId) {
       this._makeSureDuang();
@@ -94,7 +96,7 @@ class DuangOperator {
     let duangRequestId = null;
     const workerMaster = this._workerMaster;
     if (workerMaster) {
-      console.log('[duang play operator] _makeSureDuang');
+      logger.log('[duang play operator] _makeSureDuang');
       duangRequestId = workerMaster.getNextDuangRequestId();
     }
     return duangRequestId;
@@ -118,11 +120,11 @@ class DuangOperator {
 
 
   _makeSureDuang(): void {
-    console.log('[duang play operator] _makeSureDuang');
+    logger.log('[duang play operator] _makeSureDuang');
     const playerOperator = this._playerOperator;
     if (playerOperator && playerOperator.isPlaying()) {
       // already playing
-      console.log('[duang play operator] _makeSureDuang already playing');
+      logger.log('[duang play operator] _makeSureDuang already playing');
       return;
     }
 
@@ -130,7 +132,7 @@ class DuangOperator {
   }
 
   _duang(): void {
-    console.log('[duang play operator] _duang');
+    logger.log('[duang play operator] _duang');
     const mp3s = [this._mp3FilePath];
     const playerOperator = new PlayerOperator(
       mp3s,
@@ -149,7 +151,7 @@ class DuangOperator {
   }
 
   _duangFinished(): void {
-    console.log('[duang play operator] _duangFinished', this._currentDuangRequestId);
+    logger.log('[duang play operator] _duangFinished', this._currentDuangRequestId);
     this._playerOperator = null;
 
     const handledRequestId = this._currentDuangRequestId || '';
@@ -161,7 +163,7 @@ class DuangOperator {
     });
 
     this._currentDuangRequestId = null;
-    console.log('[duang play operator] _duangFinished finished', this._duangRequestHandled);
+    logger.log('[duang play operator] _duangFinished finished', this._duangRequestHandled);
   }
 
 }
