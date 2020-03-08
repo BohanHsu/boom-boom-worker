@@ -7,8 +7,11 @@ const DuangOperator = require('./playerOperator/duangOperator');
 
 const logger = require('./logger/logger');
 
+const defaultConfigs = require('./configs/defaultConfigs');
+
 import type {HandledDuangRequest} from './playerOperator/duangOperator';
 import type {InMessageType, OutMessageType} from './messenger/messageTypes';
+import type {PlayerOperatorConfig} from './playerOperator/playerOperator';
 
 class WorkerMaster {
   _globalSwitch: boolean;
@@ -35,26 +38,10 @@ class WorkerMaster {
 
     this._ip = new Ip();
 
-    this.keepSyncWithControlTower();
+    this._keepSyncWithControlTower();
 
     this._startOperator();
     this._startDuangOperator();
-  }
-
-
-
-  _startOperator(): void {
-    if (this._shouldPlayOperator == null) {
-      logger.log('[master _startShouldPlayOperator]', this._mp3FilePath);
-      this._shouldPlayOperator = new ShouldPlayOperator(this._mp3FilePath, this);
-    }
-  }
-
-  _startDuangOperator(): void {
-    if (this._duangOperator == null) {
-      logger.log('[master _startDuangOperator]', this._mp3FilePath);
-      this._duangOperator = new DuangOperator(this._mp3FilePath, this);
-    }
   }
 
   getGlobalSwitch(): boolean {
@@ -73,12 +60,34 @@ class WorkerMaster {
     return null;
   }
 
+  getDuangPlayerOperatorConfig(): PlayerOperatorConfig {
+    return defaultConfigs.duang;
+  }
+
+  getShouldPlayPlayerOperatorConfig(): PlayerOperatorConfig {
+    return defaultConfigs.shouldPlay;
+  }
+
+  _startOperator(): void {
+    if (this._shouldPlayOperator == null) {
+      logger.log('[master _startShouldPlayOperator]', this._mp3FilePath);
+      this._shouldPlayOperator = new ShouldPlayOperator(this);
+    }
+  }
+
+  _startDuangOperator(): void {
+    if (this._duangOperator == null) {
+      logger.log('[master _startDuangOperator]', this._mp3FilePath);
+      this._duangOperator = new DuangOperator(this);
+    }
+  }
+
   _getIsPlayingForAllOperators(): boolean {
     return !!(this._shouldPlayOperator && this._shouldPlayOperator.isPlaying()) || 
       !!(this._duangOperator && this._duangOperator.isPlaying());
   }
 
-  syncWithControlTower(): void {
+  _syncWithControlTower(): void {
     const currentTimestamp = Math.floor(new Date() / 1);
 
     // safety check
@@ -130,10 +139,10 @@ class WorkerMaster {
     });
   }
 
-  keepSyncWithControlTower(): void {
-    this.syncWithControlTower();
+  _keepSyncWithControlTower(): void {
+    this._syncWithControlTower();
     let timer = setInterval(() => {
-      this.syncWithControlTower();
+      this._syncWithControlTower();
     }, 3000);
   }
 }
