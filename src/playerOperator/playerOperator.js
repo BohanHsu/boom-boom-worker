@@ -6,6 +6,15 @@ const PlayerController = require('../mp3/playerController');
 
 const logger = require('../logger/logger');
 
+export type PlayerOperatorConfig = {
+  mp3Files: Array<string>,
+  infinityLoop: boolean,
+  timesToPlayLowBoundary: number,
+  timesToPlayUpBoundary: number,
+  timeoutLowBoundaryMS: number,
+  timeoutUpBoundaryMS: number,
+};
+
 class PlayerOperator {
   _mp3FilePaths: Array<string>;
   _infinityLoop: boolean;
@@ -28,26 +37,23 @@ class PlayerOperator {
 
   _finitePlayFinishedCallback: ?(() => void);
 
-  constructor(mp3FilePaths: Array<string>, 
-              infinityLoop: boolean,
-              timesToPlayLowBoundary: number,
-              timesToPlayUpBoundary: number, // set low and up boundary same value to have fix times to loop
-              timeoutLowBoundaryMS: number,
-              timeoutUpBoundaryMS: number, // set low and up boundary same value to have fix timeout
-              finitePlayFinishedCallback: ?(() => void),
-             ) {
-    this._mp3FilePaths = mp3FilePaths;
-    this._infinityLoop = infinityLoop;
-    this._timesToPlayLowBoundary = timesToPlayLowBoundary;
-    this._timesToPlayUpBoundary = timesToPlayUpBoundary;
-    this._timeoutLowBoundaryMS = timeoutLowBoundaryMS;
-    this._timeoutUpBoundaryMS = timeoutUpBoundaryMS;
+  constructor(
+    config: PlayerOperatorConfig,
+    finitePlayFinishedCallback: ?(() => void),
+  ) {
+
+    this._mp3FilePaths = config.mp3Files;
+    this._infinityLoop = config.infinityLoop;
+    this._timesToPlayLowBoundary = config.timesToPlayLowBoundary;
+    this._timesToPlayUpBoundary = config.timesToPlayUpBoundary;
+    this._timeoutLowBoundaryMS = config.timeoutLowBoundaryMS;
+    this._timeoutUpBoundaryMS = config.timeoutUpBoundaryMS;
+    this._finitePlayFinishedCallback = finitePlayFinishedCallback;
 
     this._timesToPlay = this._getTimesToPlay()
     this._isPlaying = false;
     this._playedTimes = 0;
     this._killSwitched = false;
-    this._finitePlayFinishedCallback = finitePlayFinishedCallback;
     logger.log('[PlayerOperator] construct: times to player:', this._timesToPlay);
   }
 

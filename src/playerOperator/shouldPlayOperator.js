@@ -7,14 +7,11 @@ const PlayerOperator = require('./playerOperator');
 const logger = require('../logger/logger');
 
 class ShouldPlayOperator {
-  _mp3FilePath: string;
   _workerMaster: WorkerMaster;
 
   _playerOperator: ?PlayerOperator;
 
-  constructor(mp3FilePath: string, workerMaster: WorkerMaster) {
-    this._mp3FilePath = mp3FilePath;
-
+  constructor(workerMaster: WorkerMaster) {
     this._playerOperator = null;
 
     this._workerMaster = workerMaster;
@@ -60,13 +57,15 @@ class ShouldPlayOperator {
       playerOperator = null;
     }
 
+    const config = this._workerMaster.getShouldPlayPlayerOperatorConfig();
+
+    if (config.mp3Files.length === 0) {
+      logger.log('[should play operator] cannot play due to no mp3 files provided.');
+      return;
+    }
+
     playerOperator = new PlayerOperator(
-      [this._mp3FilePath],
-      true,
-      -1,
-      -1,
-      1000,
-      10000,
+      config,
       null,
     );
     playerOperator.startPlay();

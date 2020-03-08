@@ -14,7 +14,6 @@ export type HandledDuangRequest = {
 };
 
 class DuangOperator {
-  _mp3FilePath: string;
   _playerOperator: ?PlayerOperator;
   _workerMaster: WorkerMaster;
 
@@ -22,8 +21,7 @@ class DuangOperator {
 
   _duangRequestHandled: Array<HandledDuangRequest>;
 
-  constructor(mp3FilePath: string, workerMaster: WorkerMaster) {
-    this._mp3FilePath = mp3FilePath;
+  constructor(workerMaster: WorkerMaster) {
     this._workerMaster = workerMaster;
 
     this._currentDuangRequestId = null;
@@ -96,7 +94,7 @@ class DuangOperator {
     let duangRequestId = null;
     const workerMaster = this._workerMaster;
     if (workerMaster) {
-      logger.log('[duang play operator] _makeSureDuang');
+      logger.log('[duang play operator] _getNextDuangRequestIdFromMaster');
       duangRequestId = workerMaster.getNextDuangRequestId();
     }
     return duangRequestId;
@@ -133,14 +131,21 @@ class DuangOperator {
 
   _duang(): void {
     logger.log('[duang play operator] _duang');
-    const mp3s = [this._mp3FilePath];
+    const config = this._workerMaster.getDuangPlayerOperatorConfig();
+
+    if (config.mp3Files.length === 0) {
+      const handledRequestId = this._currentDuangRequestId || '';
+      this._duangRequestHandled.push({
+        requestId: handledRequestId, 
+        duangPlayed: false, 
+        rejectReason: "No mp3 files to Duang",
+      });
+      logger.log('[duang play operator] cannot play due to no mp3 files provided.');
+      return;
+    }
+
     const playerOperator = new PlayerOperator(
-      mp3s,
-      false,
-      1,
-      3,
-      1000,
-      3000,
+      config,
       () => {
         this._duangFinished();
       },
