@@ -8,18 +8,18 @@ import type {InMessageType, OutMessageType} from './messageTypes';
 class HttpsMessenger {
   identification: string;
   hostname: string;
-  path: string;
+  pingPath: string;
   port: number;
 
-  constructor(identification: string, hostname: string, path: string, port: number) {
+  constructor(identification: string, hostname: string, pingPath: string, port: number) {
     this.identification = identification;
     this.hostname = hostname;
-    this.path = path;
+    this.pingPath = pingPath;
     this.port = port;
   }
 
   ping(outMessage: OutMessageType, cb: (InMessageType) => void): void {
-    this._syncHttps(this.path, outMessage, (jsonBody: any) => {
+    this._syncHttps(this.pingPath, outMessage, (jsonBody: any) => {
       if (jsonBody.httpCode !== 200) {
         cb({
           httpCode: jsonBody.httpCode,
@@ -37,7 +37,6 @@ class HttpsMessenger {
         if (duang) {
           inMessage.duang = duang;
         }
-        console.log(jsonBody, duang, inMessage);
 
         cb(inMessage);
       }
@@ -74,29 +73,11 @@ class HttpsMessenger {
 
       res.on('end', () => {
         if (httpCode !== 200) {
-          // TODO
-          // if (cb) {
-          //   cb({httpCode, globalSwitch:false});
-          // }
           cb({httpCode});
-
           return;
         }
 
         const jsonBody = JSON.parse(body);
-        // TODO
-        // if (cb) {
-        //   let inMessage:any = {
-        //     httpCode,
-        //     globalSwitch: jsonBody.globalSwitch,
-        //     shouldPlay: jsonBody.shouldPlay,
-        //   };
-        //   const duang = jsonBody.duang;
-        //   if (duang) {
-        //     inMessage['duang'] = duang;
-        //   }
-        //   cb(inMessage);
-        // }
         cb({
           httpCode,
           ...jsonBody,

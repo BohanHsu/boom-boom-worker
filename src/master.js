@@ -130,8 +130,6 @@ class WorkerMaster {
       this._globalSwitch = inMessage.globalSwitch;
       this._shouldPlay = !!inMessage.shouldPlay;
 
-
-      console.log(inMessage, inMessage.duang);
       if (inMessage.duang) {
         this._duangRequestQueue.push(inMessage.duang);
       }
