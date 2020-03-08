@@ -18,19 +18,44 @@ class HttpsMessenger {
     this.port = port;
   }
 
-  syncHttps(outMessage: OutMessageType, cb: (InMessageType) => void): void {
-    logger.log('[httpsMessenger] https messenger syncHttp:', outMessage)
-    const data = JSON.stringify({
-      whoami:this.identification, 
-      isPlaying: outMessage.isPlaying,
-      duang: outMessage.duang,
-      ip: outMessage.ip,
+  ping(outMessage: OutMessageType, cb: (InMessageType) => void): void {
+    this._syncHttps(this.path, outMessage, (jsonBody: any) => {
+      if (jsonBody.httpCode !== 200) {
+        cb({
+          httpCode: jsonBody.httpCode,
+          globalSwitch: false,
+        });
+      } else {
+        let inMessage: InMessageType = {
+          httpCode: jsonBody.httpCode,
+          globalSwitch: jsonBody.globalSwitch,
+          shouldPlay: jsonBody.shouldPlay,
+        }
+
+
+        const duang = jsonBody.duang;
+        if (duang) {
+          inMessage.duang = duang;
+        }
+        console.log(jsonBody, duang, inMessage);
+
+        cb(inMessage);
+      }
     });
+  }
+
+  _syncHttps(path: string, outMessage:any, cb: (any) => void): void {
+    logger.log('[httpsMessenger] https messenger syncHttp:', outMessage)
+    let jsonData = {
+      whoami:this.identification, 
+      ...outMessage,
+    };
+    const data = JSON.stringify(jsonData);
 
     const options = {
       hostname: this.hostname,
       port: this.port,
-      path: this.path,
+      path: path,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -49,26 +74,33 @@ class HttpsMessenger {
 
       res.on('end', () => {
         if (httpCode !== 200) {
-          if (cb) {
-            cb({httpCode, globalSwitch:false});
-          }
+          // TODO
+          // if (cb) {
+          //   cb({httpCode, globalSwitch:false});
+          // }
+          cb({httpCode});
 
           return;
         }
 
         const jsonBody = JSON.parse(body);
-        if (cb) {
-          let inMessage:any = {
-            httpCode,
-            globalSwitch: jsonBody.globalSwitch,
-            shouldPlay: jsonBody.shouldPlay,
-          };
-          const duang = jsonBody.duang;
-          if (duang) {
-            inMessage['duang'] = duang;
-          }
-          cb(inMessage);
-        }
+        // TODO
+        // if (cb) {
+        //   let inMessage:any = {
+        //     httpCode,
+        //     globalSwitch: jsonBody.globalSwitch,
+        //     shouldPlay: jsonBody.shouldPlay,
+        //   };
+        //   const duang = jsonBody.duang;
+        //   if (duang) {
+        //     inMessage['duang'] = duang;
+        //   }
+        //   cb(inMessage);
+        // }
+        cb({
+          httpCode,
+          ...jsonBody,
+        });
       });
     });
 
@@ -82,7 +114,6 @@ class HttpsMessenger {
     req.write(data);
     req.end();
   }
-
 }
 
 module.exports = HttpsMessenger;

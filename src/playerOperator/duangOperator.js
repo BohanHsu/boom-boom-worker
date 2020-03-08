@@ -94,7 +94,7 @@ class DuangOperator {
     let duangRequestId = null;
     const workerMaster = this._workerMaster;
     if (workerMaster) {
-      logger.log('[duang play operator] _makeSureDuang');
+      logger.log('[duang play operator] _getNextDuangRequestIdFromMaster');
       duangRequestId = workerMaster.getNextDuangRequestId();
     }
     return duangRequestId;

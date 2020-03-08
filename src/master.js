@@ -120,7 +120,7 @@ class WorkerMaster {
       outMessage.duang = nextHandledDuangRequest;
     }
 
-    this._messenger.syncHttps(outMessage, (inMessage) => {
+    this._messenger.ping(outMessage, (inMessage) => {
       if (inMessage.httpCode !== 200) {
         this._shouldPlay = false;
         this._duangRequestQueue = [];
@@ -131,6 +131,7 @@ class WorkerMaster {
       this._shouldPlay = !!inMessage.shouldPlay;
 
 
+      console.log(inMessage, inMessage.duang);
       if (inMessage.duang) {
         this._duangRequestQueue.push(inMessage.duang);
       }
