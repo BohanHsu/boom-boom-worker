@@ -1,7 +1,6 @@
 module.exports = {
   shouldPlay: {
     mp3Files: [
-      // '/Users/bohanxu/Downloads/dog_bark.mp3', // TODO remove
     ],
     infinityLoop: true,
     timesToPlayLowBoundary: -1,
@@ -11,7 +10,6 @@ module.exports = {
   },
   duang: {
     mp3Files: [
-      // '/Users/bohanxu/Downloads/dog_bark.mp3', // TODO remove
     ],
     infinityLoop: false,
     timesToPlayLowBoundary: 1,
