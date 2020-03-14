@@ -8,6 +8,7 @@ const DuangOperator = require('./playerOperator/duangOperator');
 const logger = require('./logger/logger');
 
 const defaultConfigs = require('./configs/defaultConfigs');
+const configMerger = require('./configs/configMerger');
 
 import type {HandledDuangRequest} from './playerOperator/duangOperator';
 import type {InMessageType, OutMessageType} from './messenger/messageTypes';
@@ -26,6 +27,8 @@ class WorkerMaster {
   _duangOperator: ?DuangOperator;
   _ip: Ip;
 
+  _config: {[string]: PlayerOperatorConfig|any};
+
   constructor(messenger: HttpsMessenger, mp3FilePath: string) {
     this._globalSwitch = false;
     this._shouldPlay = false;
@@ -40,8 +43,7 @@ class WorkerMaster {
 
     this._keepSyncWithControlTower();
 
-    this._startOperator();
-    this._startDuangOperator();
+    this._config = defaultConfigs;
   }
 
   getGlobalSwitch(): boolean {
@@ -61,11 +63,13 @@ class WorkerMaster {
   }
 
   getDuangPlayerOperatorConfig(): PlayerOperatorConfig {
-    return defaultConfigs.duang;
+    let config: PlayerOperatorConfig = this._config.duang;
+    return config;
   }
 
   getShouldPlayPlayerOperatorConfig(): PlayerOperatorConfig {
-    return defaultConfigs.shouldPlay;
+    let config: PlayerOperatorConfig = this._config.shouldPlay;
+    return config;
   }
 
   _startOperator(): void {
@@ -87,7 +91,22 @@ class WorkerMaster {
       !!(this._duangOperator && this._duangOperator.isPlaying());
   }
 
-  _syncWithControlTower(): void {
+  _handleNewConfigArrival(newConfig: string): void {
+    let newConfigObj = null;
+
+    try {
+      newConfigObj = JSON.parse(newConfig);
+    } catch (e) {
+    }
+
+    if (newConfigObj) {
+      logger.log('[master before merge config, old config: ]', this._config, ', new config: ', newConfigObj);
+      this._config = configMerger(this._config, newConfigObj);
+      logger.log('[master after merge config: ]', this._config);
+    }
+  }
+
+  _syncWithControlTower(requireConfig: boolean): void {
     const currentTimestamp = Math.floor(new Date() / 1);
 
     // safety check
@@ -120,6 +139,10 @@ class WorkerMaster {
       outMessage.duang = nextHandledDuangRequest;
     }
 
+    if (requireConfig) {
+      outMessage.requireConfig = true;
+    }
+
     this._messenger.ping(outMessage, (inMessage) => {
       if (inMessage.httpCode !== 200) {
         this._shouldPlay = false;
@@ -134,14 +157,28 @@ class WorkerMaster {
         this._duangRequestQueue.push(inMessage.duang);
       }
 
+      if (inMessage.config) {
+        this._handleNewConfigArrival(inMessage.config);
+
+      }
+
       logger.log('WorkerMaster sync finish, shouldPlay', this._shouldPlay, this._duangRequestQueue);
+
+      this._reportConfigToControlTower();
+
+      // check and start player
+      this._startOperator();
+      this._startDuangOperator();
     });
   }
 
+  _reportConfigToControlTower(): void {
+  }
+
   _keepSyncWithControlTower(): void {
-    this._syncWithControlTower();
+    this._syncWithControlTower(true);
     let timer = setInterval(() => {
-      this._syncWithControlTower();
+      this._syncWithControlTower(false);
     }, 3000);
   }
 }

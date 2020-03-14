@@ -30,6 +30,7 @@ class HttpsMessenger {
           httpCode: jsonBody.httpCode,
           globalSwitch: jsonBody.globalSwitch,
           shouldPlay: jsonBody.shouldPlay,
+          config: jsonBody.config,
         }
 
 
@@ -78,6 +79,7 @@ class HttpsMessenger {
         }
 
         const jsonBody = JSON.parse(body);
+        logger.error('[httpsMessenger] https messenger received message:', jsonBody);
         cb({
           httpCode,
           ...jsonBody,

@@ -6,6 +6,7 @@ export type OutMessageType = {
     duangPlayed: boolean, 
     rejectReason?: string
   },
+  config?: string,
 };
 
 export type InMessageType = {
@@ -13,4 +14,5 @@ export type InMessageType = {
   globalSwitch: boolean,
   shouldPlay?: boolean,
   duang?: string,
+  requireConfig?: boolean,
 };
