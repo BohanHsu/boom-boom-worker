@@ -21,7 +21,6 @@ class WorkerMaster {
   _syncSuccessFinishTime: number;
 
   _messenger: HttpsMessenger;
-  _mp3FilePath: string;
 
   _shouldPlayOperator: ?ShouldPlayOperator;
   _duangOperator: ?DuangOperator;
@@ -29,7 +28,7 @@ class WorkerMaster {
 
   _config: {[string]: PlayerOperatorConfig|any};
 
-  constructor(messenger: HttpsMessenger, mp3FilePath: string) {
+  constructor(messenger: HttpsMessenger) {
     this._globalSwitch = false;
     this._shouldPlay = false;
     this._duangRequestQueue = [];
@@ -37,7 +36,6 @@ class WorkerMaster {
     this._syncSuccessFinishTime = -1;
 
     this._messenger = messenger;
-    this._mp3FilePath = mp3FilePath;
 
     this._ip = new Ip();
 
@@ -74,14 +72,14 @@ class WorkerMaster {
 
   _startOperator(): void {
     if (this._shouldPlayOperator == null) {
-      logger.log('[master _startShouldPlayOperator]', this._mp3FilePath);
+      logger.log('[master _startShouldPlayOperator]');
       this._shouldPlayOperator = new ShouldPlayOperator(this);
     }
   }
 
   _startDuangOperator(): void {
     if (this._duangOperator == null) {
-      logger.log('[master _startDuangOperator]', this._mp3FilePath);
+      logger.log('[master _startDuangOperator]');
       this._duangOperator = new DuangOperator(this);
     }
   }
@@ -103,7 +101,20 @@ class WorkerMaster {
       logger.log('[master before merge config, old config: ]', this._config, ', new config: ', newConfigObj);
       this._config = configMerger(this._config, newConfigObj);
       logger.log('[master after merge config: ]', this._config);
+      this._reportConfigToControlTower();
     }
+  }
+
+  _reportConfigToControlTower(): void {
+    const configStr = JSON.stringify(this._config);
+    const availableMp3s = ["testmp31","testmp32"];
+
+    const outMessage = {
+      config: configStr,
+      availableMp3s,
+    };
+
+    this._messenger.reportConfig(outMessage);
   }
 
   _syncWithControlTower(requireConfig: boolean): void {
@@ -164,15 +175,10 @@ class WorkerMaster {
 
       logger.log('WorkerMaster sync finish, shouldPlay', this._shouldPlay, this._duangRequestQueue);
 
-      this._reportConfigToControlTower();
-
       // check and start player
       this._startOperator();
       this._startDuangOperator();
     });
-  }
-
-  _reportConfigToControlTower(): void {
   }
 
   _keepSyncWithControlTower(): void {

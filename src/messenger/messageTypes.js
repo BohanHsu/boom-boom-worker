@@ -16,3 +16,8 @@ export type InMessageType = {
   duang?: string,
   requireConfig?: boolean,
 };
+
+export type OutConfigMessageType = {
+  config: string,
+  availableMp3s: Array<string>,
+};
