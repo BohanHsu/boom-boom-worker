@@ -3,6 +3,10 @@
 import type {PlayerOperatorConfig} from '../playerOperator/playerOperator';
 
 function inPlaceMergeKeyToOldObjIfKeyExistsInNewObj(key:string, oldObj: any, newObj: any): void {
+  if (!newObj) {
+    return;
+  }
+
   const nVal = newObj[key];
   if (nVal !== null && nVal !== undefined) {
     oldObj[key] = nVal;
