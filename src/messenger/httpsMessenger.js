@@ -3,18 +3,20 @@
 const https = require('https');
 const logger = require('../logger/logger');
 
-import type {InMessageType, OutMessageType} from './messageTypes';
+import type {InMessageType, OutMessageType, OutConfigMessageType} from './messageTypes';
 
 class HttpsMessenger {
   identification: string;
   hostname: string;
   pingPath: string;
+  reportConfigPath: string;
   port: number;
 
-  constructor(identification: string, hostname: string, pingPath: string, port: number) {
+  constructor(identification: string, hostname: string, pingPath: string, reportConfigPath: string, port: number) {
     this.identification = identification;
     this.hostname = hostname;
     this.pingPath = pingPath;
+    this.reportConfigPath = reportConfigPath;
     this.port = port;
   }
 
@@ -30,6 +32,7 @@ class HttpsMessenger {
           httpCode: jsonBody.httpCode,
           globalSwitch: jsonBody.globalSwitch,
           shouldPlay: jsonBody.shouldPlay,
+          config: jsonBody.config,
         }
 
 
@@ -39,6 +42,16 @@ class HttpsMessenger {
         }
 
         cb(inMessage);
+      }
+    });
+  }
+
+  reportConfig(outMessage: OutConfigMessageType): void {
+    this._syncHttps(this.reportConfigPath, outMessage, (jsonBody: any) => {
+      if (jsonBody.httpCode !== 200) {
+        logger.log('[httpsMessenger] https messenger reportConfig failed');
+      } else {
+        logger.log('[httpsMessenger] https messenger reportConfig succeed');
       }
     });
   }
@@ -78,6 +91,7 @@ class HttpsMessenger {
         }
 
         const jsonBody = JSON.parse(body);
+        logger.error('[httpsMessenger] https messenger received message:', jsonBody);
         cb({
           httpCode,
           ...jsonBody,
