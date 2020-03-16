@@ -7,7 +7,7 @@ module.exports = {
 
   error: function(...args) {
     if (process.env.DEV_LOG) {
-      console.error(...args);
+      console.log(...args);
     }
   },
 };
