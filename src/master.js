@@ -1,6 +1,7 @@
 // @flow
 
 const HttpsMessenger = require('./messenger/httpsMessenger');
+const Mp3Files = require('./mp3Files/mp3Files');
 const Ip = require('./ip/ip');
 const ShouldPlayOperator = require('./playerOperator/shouldPlayOperator');
 const DuangOperator = require('./playerOperator/duangOperator');
@@ -21,6 +22,7 @@ class WorkerMaster {
   _syncSuccessFinishTime: number;
 
   _messenger: HttpsMessenger;
+  _mp3Files: Mp3Files;
 
   _shouldPlayOperator: ?ShouldPlayOperator;
   _duangOperator: ?DuangOperator;
@@ -28,7 +30,7 @@ class WorkerMaster {
 
   _config: {[string]: PlayerOperatorConfig|any};
 
-  constructor(messenger: HttpsMessenger) {
+  constructor(messenger: HttpsMessenger, mp3Files: Mp3Files) {
     this._globalSwitch = false;
     this._shouldPlay = false;
     this._duangRequestQueue = [];
@@ -36,6 +38,7 @@ class WorkerMaster {
     this._syncSuccessFinishTime = -1;
 
     this._messenger = messenger;
+    this._mp3Files = mp3Files;
 
     this._ip = new Ip();
 
@@ -107,7 +110,7 @@ class WorkerMaster {
 
   _reportConfigToControlTower(): void {
     const configStr = JSON.stringify(this._config);
-    const availableMp3s = ["testmp31","testmp32"];
+    const availableMp3s = this._mp3Files.findMp3Files();
 
     const outMessage = {
       config: configStr,
