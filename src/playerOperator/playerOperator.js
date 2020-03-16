@@ -8,6 +8,7 @@ const logger = require('../logger/logger');
 
 export type PlayerOperatorConfig = {
   mp3Files: Array<string>,
+  pickOneMp3OtherwisePlayAll: boolean,
   infinityLoop: boolean,
   timesToPlayLowBoundary: number,
   timesToPlayUpBoundary: number,
@@ -37,11 +38,12 @@ class PlayerOperator {
 
   _finitePlayFinishedCallback: ?(() => void);
 
+  _config: PlayerOperatorConfig;
+
   constructor(
     config: PlayerOperatorConfig,
     finitePlayFinishedCallback: ?(() => void),
   ) {
-
     this._mp3FilePaths = config.mp3Files;
     this._infinityLoop = config.infinityLoop;
     this._timesToPlayLowBoundary = config.timesToPlayLowBoundary;
@@ -54,6 +56,9 @@ class PlayerOperator {
     this._isPlaying = false;
     this._playedTimes = 0;
     this._killSwitched = false;
+
+    this._config = config;
+
     logger.log('[PlayerOperator] construct: times to player:', this._timesToPlay);
   }
 
@@ -132,6 +137,17 @@ class PlayerOperator {
     this._maybePlay();
   }
 
+  _pickMp3Files(): Array<string> {
+    let pickedMp3Files = null;
+    if (this._config.pickOneMp3OtherwisePlayAll) {
+      const idx = parseInt(Math.random() * this._mp3FilePaths.length);
+      pickedMp3Files = [this._mp3FilePaths[idx]];
+    } else {
+      pickedMp3Files = this._mp3FilePaths;
+    }
+    return pickedMp3Files;
+  }
+
   _singleShootOfPlay():void {
     if (this._killSwitched) {
       return;
@@ -141,7 +157,9 @@ class PlayerOperator {
 
     const currentPlayerController = new PlayerController();
 
-    const mp3s = this._mp3FilePaths.map((path) => {
+    const mp3FilePaths = this._pickMp3Files();
+
+    const mp3s = mp3FilePaths.map((path) => {
       return new Mp3(path);
     })
     const player = new Player(currentPlayerController, mp3s);

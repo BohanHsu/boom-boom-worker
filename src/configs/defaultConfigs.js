@@ -2,7 +2,7 @@ module.exports = {
   shouldPlay: {
     mp3Files: [
     ],
-    pickOneMp3OtherwisePlayAll: false,
+    pickOneMp3OtherwisePlayAll: true,
     infinityLoop: true,
     timesToPlayLowBoundary: -1,
     timesToPlayUpBoundary: -1,
@@ -15,7 +15,7 @@ module.exports = {
     pickOneMp3OtherwisePlayAll: true,
     infinityLoop: false,
     timesToPlayLowBoundary: 1,
-    timesToPlayUpBoundary: 3,
+    timesToPlayUpBoundary: 1,
     timeoutLowBoundaryMS: 1000,
     timeoutUpBoundaryMS: 3000,
   },
