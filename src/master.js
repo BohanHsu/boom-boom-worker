@@ -29,6 +29,7 @@ class WorkerMaster {
   _ip: Ip;
 
   _config: {[string]: PlayerOperatorConfig|any};
+  _initialConfigReceived: boolean;
 
   constructor(messenger: HttpsMessenger, mp3Files: Mp3Files) {
     this._globalSwitch = false;
@@ -45,6 +46,7 @@ class WorkerMaster {
     this._keepSyncWithControlTower();
 
     this._config = defaultConfigs;
+    this._initialConfigReceived = false;
   }
 
   getGlobalSwitch(): boolean {
@@ -104,6 +106,9 @@ class WorkerMaster {
       logger.log('[master before merge config, old config: ]', this._config, ', new config: ', newConfigObj);
       this._config = configMerger(this._config, newConfigObj);
       logger.log('[master after merge config: ]', this._config);
+      if (!this._initialConfigReceived) {
+        this._initialConfigReceived = true;
+      }
       this._reportConfigToControlTower();
     }
   }
@@ -187,7 +192,7 @@ class WorkerMaster {
   _keepSyncWithControlTower(): void {
     this._syncWithControlTower(true);
     let timer = setInterval(() => {
-      this._syncWithControlTower(false);
+      this._syncWithControlTower(false || !this._initialConfigReceived);
     }, 3000);
   }
 }
