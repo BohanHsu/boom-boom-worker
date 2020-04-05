@@ -29,6 +29,7 @@ function inPlaceMergePlayerOperatorConfig(key: string, oldConfig:any, newConfig:
   inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("timesToPlayUpBoundary", oldObj, newObj);
   inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("timeoutLowBoundaryMS", oldObj, newObj);
   inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("timeoutUpBoundaryMS", oldObj, newObj);
+  inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("volumePercentage", oldObj, newObj);
 }
 
 module.exports = function(oldConfig:any, newConfig:any): {[string]: PlayerOperatorConfig|any} {
