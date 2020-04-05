@@ -8,6 +8,7 @@ module.exports = {
     timesToPlayUpBoundary: -1,
     timeoutLowBoundaryMS: 1000,
     timeoutUpBoundaryMS: 10000,
+    volumePercentage:1,
   },
   duang: {
     mp3Files: [
@@ -18,5 +19,6 @@ module.exports = {
     timesToPlayUpBoundary: 1,
     timeoutLowBoundaryMS: 1000,
     timeoutUpBoundaryMS: 3000,
+    volumePercentage:1,
   },
 };

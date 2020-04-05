@@ -14,6 +14,7 @@ export type PlayerOperatorConfig = {
   timesToPlayUpBoundary: number,
   timeoutLowBoundaryMS: number,
   timeoutUpBoundaryMS: number,
+  volumePercentage: number,
 };
 
 class PlayerOperator {
@@ -158,9 +159,10 @@ class PlayerOperator {
     const currentPlayerController = new PlayerController();
 
     const mp3FilePaths = this._pickMp3Files();
+    const volume = this._config.volumePercentage;
 
     const mp3s = mp3FilePaths.map((path) => {
-      return new Mp3(path);
+      return new Mp3(path, volume);
     })
     const player = new Player(currentPlayerController, mp3s);
 
