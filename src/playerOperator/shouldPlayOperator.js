@@ -67,6 +67,9 @@ class ShouldPlayOperator {
     playerOperator = new PlayerOperator(
       config,
       null,
+      () => {
+        return this._workerMaster.getShouldPlayPlayerOperatorConfig();
+      },
     );
     playerOperator.startPlay();
     this._playerOperator = playerOperator;
