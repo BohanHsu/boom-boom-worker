@@ -7,6 +7,8 @@ const logger = require('../logger/logger');
 
 const {OmxplayerVolume} = require('./mp3Volumes');
 
+const {OmxplayerKill} = require('./mp3Processes');
+
 class Mp3 {
   _audio: any;
   _filePath: string;
@@ -62,6 +64,7 @@ class Mp3 {
       audio.kill();
       this._audio = null;
     }
+    OmxplayerKill();
   }
 
   isPlaying(): boolean {
