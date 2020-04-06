@@ -18,7 +18,6 @@ export type PlayerOperatorConfig = {
 };
 
 class PlayerOperator {
-  // _mp3FilePaths: Array<string>;
   _infinityLoop: boolean;
   _timesToPlayLowBoundary: number;
   _timesToPlayUpBoundary: number; // set low and up boundary same value to have fix times to loop
@@ -47,7 +46,6 @@ class PlayerOperator {
     finitePlayFinishedCallback: ?(() => void),
     configGetter?: ?(() => PlayerOperatorConfig),
   ) {
-    // this._mp3FilePaths = config.mp3Files;
     this._infinityLoop = config.infinityLoop;
     this._timesToPlayLowBoundary = config.timesToPlayLowBoundary;
     this._timesToPlayUpBoundary = config.timesToPlayUpBoundary;
@@ -144,12 +142,9 @@ class PlayerOperator {
   _pickMp3Files(): Array<string> {
     let pickedMp3Files = null;
     if (this._config.pickOneMp3OtherwisePlayAll) {
-      //const idx = parseInt(Math.random() * this._mp3FilePaths.length);
       const idx = parseInt(Math.random() * this._config.mp3Files.length);
-      //pickedMp3Files = [this._mp3FilePaths[idx]];
       pickedMp3Files = [this._config.mp3Files[idx]];
     } else {
-      //pickedMp3Files = this._mp3FilePaths;
       pickedMp3Files = this._config.mp3Files;
     }
     return pickedMp3Files;
