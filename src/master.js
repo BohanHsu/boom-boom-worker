@@ -10,6 +10,7 @@ const logger = require('./logger/logger');
 
 const defaultConfigs = require('./configs/defaultConfigs');
 const configMerger = require('./configs/configMerger');
+const CMD = require('./cmd/cmd');
 
 import type {HandledDuangRequest} from './playerOperator/duangOperator';
 import type {InMessageType, OutMessageType} from './messenger/messageTypes';
@@ -194,6 +195,12 @@ class WorkerMaster {
     let timer = setInterval(() => {
       this._syncWithControlTower(false || !this._initialConfigReceived);
     }, 3000);
+  }
+
+  _periodicallyRestartPi(): void {
+    setTimeout(, 10)
+
+
   }
 }
 
