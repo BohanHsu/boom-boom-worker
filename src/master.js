@@ -198,9 +198,8 @@ class WorkerMaster {
   }
 
   _periodicallyRestartPi(): void {
-    setTimeout(, 10)
-
-
+    setTimeout(() => {
+    }, 1000);
   }
 }
 
