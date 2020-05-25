@@ -209,7 +209,7 @@ class WorkerMaster {
     if (this._config.shouldRestartWorker === true) {
       const threshold = Math.min(...[6000, this._config.restartWorkerSyncCnt]);
       if (this._syncFinishCnt > threshold) {
-        if (!this._shouldPlay && this._duangRequestQueue.length == 0) {
+        if (!this._shouldPlay && this._duangRequestQueue.length === 0 && this._duangOperator.peekNextHandledRequest() === null) {
           const restartCommand = this._config.restartWorkerScript;
           if (restartCommand) {
             CMD_SPAWN(restartCommand, (e, stdout) => {});

@@ -46,6 +46,14 @@ class DuangOperator {
     return null;
   }
 
+  peekNextHandledRequest(): ?HandledDuangRequest {
+    if (this._duangRequestHandled.length > 0) {
+      return this._duangRequestHandled[0];
+    }
+
+    return null;
+  }
+
   _keepSyncWithMaster() {
     logger.log('[duang play operator] _keepSyncWithMaster');
     this._syncWithWorkerMaster();
