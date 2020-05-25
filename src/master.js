@@ -10,7 +10,7 @@ const logger = require('./logger/logger');
 
 const defaultConfigs = require('./configs/defaultConfigs');
 const configMerger = require('./configs/configMerger');
-const CMD = require('./cmd/cmd');
+const {CMD} = require('./cmd/cmd');
 
 import type {HandledDuangRequest} from './playerOperator/duangOperator';
 import type {InMessageType, OutMessageType} from './messenger/messageTypes';
@@ -32,6 +32,8 @@ class WorkerMaster {
   _config: {[string]: PlayerOperatorConfig|any};
   _initialConfigReceived: boolean;
 
+  _syncFinishCnt: number;
+
   constructor(messenger: HttpsMessenger, mp3Files: Mp3Files) {
     this._globalSwitch = false;
     this._shouldPlay = false;
@@ -48,6 +50,8 @@ class WorkerMaster {
 
     this._config = defaultConfigs;
     this._initialConfigReceived = false;
+
+    this._syncFinishCnt = 0;
   }
 
   getGlobalSwitch(): boolean {
@@ -184,6 +188,8 @@ class WorkerMaster {
 
       logger.log('WorkerMaster sync finish, shouldPlay', this._shouldPlay, this._duangRequestQueue);
 
+      this._keepWorkerFresh();
+
       // check and start player
       this._startOperator();
       this._startDuangOperator();
@@ -195,6 +201,22 @@ class WorkerMaster {
     let timer = setInterval(() => {
       this._syncWithControlTower(false || !this._initialConfigReceived);
     }, 3000);
+  }
+
+  _keepWorkerFresh(): void {
+    this._syncFinishCnt += 1;
+
+    if (this._config.shouldRestartWorker === true) {
+      const threshold = Math.min(...[6000, this._config.restartWorkerSyncCnt]);
+      if (this._syncFinishCnt > threshold) {
+        if (!this._shouldPlay && this._duangRequestQueue.length == 0) {
+          const restartCommand = this._config.restartWorkerScript;
+          if (restartCommand) {
+            CMD(restartCommand, (e, stdout) => {});
+          }
+        }
+      }
+    }
   }
 
   _periodicallyRestartPi(): void {

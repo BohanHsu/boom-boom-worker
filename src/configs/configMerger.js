@@ -38,5 +38,9 @@ module.exports = function(oldConfig:any, newConfig:any): {[string]: PlayerOperat
   inPlaceMergePlayerOperatorConfig("shouldPlay", mergedConfig, newConfig);
   inPlaceMergePlayerOperatorConfig("duang", mergedConfig, newConfig);
 
+  inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("shouldRestartWorker", mergedConfig, newConfig);
+  inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("restartWorkerSyncCnt", mergedConfig, newConfig);
+  inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("restartWorkerScript", mergedConfig, newConfig);
+
   return mergedConfig;
 };
