@@ -10,7 +10,7 @@ const logger = require('./logger/logger');
 
 const defaultConfigs = require('./configs/defaultConfigs');
 const configMerger = require('./configs/configMerger');
-const {CMD} = require('./cmd/cmd');
+const {CMD_SPAWN} = require('./cmd/cmd');
 
 import type {HandledDuangRequest} from './playerOperator/duangOperator';
 import type {InMessageType, OutMessageType} from './messenger/messageTypes';
@@ -212,7 +212,7 @@ class WorkerMaster {
         if (!this._shouldPlay && this._duangRequestQueue.length == 0) {
           const restartCommand = this._config.restartWorkerScript;
           if (restartCommand) {
-            CMD(restartCommand, (e, stdout) => {});
+            CMD_SPAWN(restartCommand, (e, stdout) => {});
           }
         }
       }

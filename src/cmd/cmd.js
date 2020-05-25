@@ -1,13 +1,14 @@
 // @flow
 
-const {exec} = require('child_process');
+const {exec, spawn} = require('child_process');
 
-function CMD(command: string, cb: (e: any, stdout: any) => void): void {
-  exec(command, (e, stdout) => {
-    cb(e, stdout);
-  });
+function CMD_SPAWN(command: string, cb: (e: any, stdout: any) => void): void {
+  const child = spawn(command, [], {
+        detached: true,
+        stdio: ['ignore']
+  }).unref();
 }
 
 module.exports = {
-  CMD,
+  CMD_SPAWN,
 };
