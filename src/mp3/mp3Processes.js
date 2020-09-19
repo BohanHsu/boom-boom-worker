@@ -4,10 +4,10 @@ const { exec } = require('child_process');
 
 function OmxplayerKill(): void {
   exec('ps aux | grep omxplayer', (e, stdout) => {
-    lines = stdout.split("\n");
-    wordLines = lines.map((line) => {
-      words = line.split(" ");
-      filteredWords = words.filter((word) => {
+    let lines = stdout.split("\n");
+    let wordLines = lines.map((line) => {
+      let words = line.split(" ");
+      let filteredWords = words.filter((word) => {
         return word.length > 0;
       });
 
@@ -18,7 +18,7 @@ function OmxplayerKill(): void {
       return wordLine.length > 0;
     });
 
-    processes = wordLines.map((wordLine) => {
+    let processes = wordLines.map((wordLine) => {
       return wordLine[1];
     });
 

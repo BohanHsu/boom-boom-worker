@@ -32,7 +32,11 @@ function inPlaceMergePlayerOperatorConfig(key: string, oldConfig:any, newConfig:
   inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("volumePercentage", oldObj, newObj);
 }
 
-module.exports = function(oldConfig:any, newConfig:any): {[string]: PlayerOperatorConfig|any} {
+module.exports = function(oldConfig:any, newConfig:any): {
+  [string]: PlayerOperatorConfig|any,
+  restartWorkerSyncCnt?: number,
+  restartWorkerScript?: string,
+} {
   let mergedConfig = JSON.parse(JSON.stringify(oldConfig));
 
   inPlaceMergePlayerOperatorConfig("shouldPlay", mergedConfig, newConfig);

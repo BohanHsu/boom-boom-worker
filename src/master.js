@@ -29,7 +29,11 @@ class WorkerMaster {
   _duangOperator: ?DuangOperator;
   _ip: Ip;
 
-  _config: {[string]: PlayerOperatorConfig|any};
+  _config: {
+    [string]: PlayerOperatorConfig|any,
+    restartWorkerSyncCnt?: number,
+    restartWorkerScript?: string,
+  };
   _initialConfigReceived: boolean;
 
   _syncFinishCnt: number;
@@ -207,9 +211,20 @@ class WorkerMaster {
     this._syncFinishCnt += 1;
 
     if (this._config.shouldRestartWorker === true) {
-      const threshold = Math.min(...[6000, this._config.restartWorkerSyncCnt]);
+      let workerSyncCnt = this._config.restartWorkerSyncCnt;
+      if (workerSyncCnt == null) {
+        workerSyncCnt = 6000;
+      }
+      const threshold = Math.min(...[6000, workerSyncCnt]);
       if (this._syncFinishCnt > threshold) {
-        if (!this._shouldPlay && this._duangRequestQueue.length === 0 && this._duangOperator.peekNextHandledRequest() === null) {
+        let peekednextHandledRequest = null;
+        if (this._duangOperator) {
+          this._duangOperator.peekNextHandledRequest()
+        }
+
+        if (!this._shouldPlay
+          && this._duangRequestQueue.length === 0
+          && peekednextHandledRequest === null) {
           const restartCommand = this._config.restartWorkerScript;
           if (restartCommand) {
             CMD_SPAWN(restartCommand, (e, stdout) => {});
