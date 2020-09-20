@@ -14,6 +14,7 @@ export type InMessageType = {
   globalSwitch: boolean,
   shouldPlay?: boolean,
   duang?: string,
+  mp3FilePath?: string,
   requireConfig?: boolean,
 };
 

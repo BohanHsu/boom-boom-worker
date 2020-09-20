@@ -35,10 +35,14 @@ class HttpsMessenger {
           config: jsonBody.config,
         }
 
-
         const duang = jsonBody.duang;
         if (duang) {
           inMessage.duang = duang;
+        }
+
+        const mp3FilePath = jsonBody.duangAudioFilePath;
+        if (mp3FilePath) {
+          inMessage.mp3FilePath = mp3FilePath;
         }
 
         cb(inMessage);

@@ -10,6 +10,7 @@
   "scripts": {
     "worker": "DEV_LOG=true node lib/index.js",
     "worker-sandbox": "DEV_LOG=true NODE_TLS_REJECT_UNAUTHORIZED=\"0\" node lib/index.js",
+    "worker-sandbox-nolog": "NODE_TLS_REJECT_UNAUTHORIZED=\"0\" node lib/index.js",
     "build": "babel src/ -d lib/",
     "prepublish": "yarn run build"
   },

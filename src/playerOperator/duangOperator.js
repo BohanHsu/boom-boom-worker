@@ -17,14 +17,14 @@ class DuangOperator {
   _playerOperator: ?PlayerOperator;
   _workerMaster: WorkerMaster;
 
-  _currentDuangRequestId: ?string;
+  _currentDuangRequestIdAndOptionalMp3File: ?{requestId: string, optionalMp3File?: string};
 
   _duangRequestHandled: Array<HandledDuangRequest>;
 
   constructor(workerMaster: WorkerMaster) {
     this._workerMaster = workerMaster;
 
-    this._currentDuangRequestId = null;
+    this._currentDuangRequestIdAndOptionalMp3File = null;
 
     this._duangRequestHandled = [];
     this._keepSyncWithMaster();
@@ -80,11 +80,11 @@ class DuangOperator {
       return;
     }
 
-    this._currentDuangRequestId = this._getNextDuangRequestIdFromMaster();
+    this._currentDuangRequestIdAndOptionalMp3File = this._getNextDuangRequestIdAndOptionalMp3FileFromMaster();
 
-    logger.log('[duang play operator] _syncWithWorkerMaster current requestId', this._currentDuangRequestId);
+    logger.log('[duang play operator] _syncWithWorkerMaster current requestId', this._currentDuangRequestIdAndOptionalMp3File);
 
-    if (this._currentDuangRequestId) {
+    if (this._currentDuangRequestIdAndOptionalMp3File) {
       this._makeSureDuang();
     }
   }
@@ -98,14 +98,14 @@ class DuangOperator {
     return false;
   }
 
-  _getNextDuangRequestIdFromMaster(): ?string {
-    let duangRequestId = null;
+  _getNextDuangRequestIdAndOptionalMp3FileFromMaster(): ?{requestId: string, optionalMp3File?: string} {
+    let duangRequestIdAndOptionalMp3File = null;
     const workerMaster = this._workerMaster;
     if (workerMaster) {
       logger.log('[duang play operator] _getNextDuangRequestIdFromMaster');
-      duangRequestId = workerMaster.getNextDuangRequestId();
+      duangRequestIdAndOptionalMp3File = workerMaster.getNextDuangRequestIdAndOptionalMp3File();
     }
-    return duangRequestId;
+    return duangRequestIdAndOptionalMp3File;
   }
 
   _makeSureStopDuang(): void {
@@ -115,13 +115,17 @@ class DuangOperator {
     }
     this._playerOperator = null;
 
-    const handledRequestId = this._currentDuangRequestId || '';
+    let handledRequestId = '';
+    if (this._currentDuangRequestIdAndOptionalMp3File) {
+      this._currentDuangRequestIdAndOptionalMp3File.requestId;
+    }
+
     this._duangRequestHandled.push({
       requestId: handledRequestId, 
       duangPlayed: false, 
       rejectReason: "Duang Play interrupted by global switch",
     });
-    this._currentDuangRequestId = null;
+    this._currentDuangRequestIdAndOptionalMp3File = null;
   }
 
 
@@ -142,7 +146,12 @@ class DuangOperator {
     const config = this._workerMaster.getDuangPlayerOperatorConfig();
 
     if (config.mp3Files.length === 0) {
-      const handledRequestId = this._currentDuangRequestId || '';
+
+      let handledRequestId = '';
+      if (this._currentDuangRequestIdAndOptionalMp3File) {
+        handledRequestId = this._currentDuangRequestIdAndOptionalMp3File.requestId;
+      }
+
       this._duangRequestHandled.push({
         requestId: handledRequestId, 
         duangPlayed: false, 
@@ -159,15 +168,25 @@ class DuangOperator {
       },
     );
 
-    playerOperator.startPlay();
+    let optionalMp3File = null;
+
+    if (this._currentDuangRequestIdAndOptionalMp3File) {
+      optionalMp3File = this._currentDuangRequestIdAndOptionalMp3File.optionalMp3File;
+    }
+
+    playerOperator.startPlay(optionalMp3File);
+
     this._playerOperator = playerOperator;
   }
 
   _duangFinished(): void {
-    logger.log('[duang play operator] _duangFinished', this._currentDuangRequestId);
+    logger.log('[duang play operator] _duangFinished', this._currentDuangRequestIdAndOptionalMp3File);
     this._playerOperator = null;
 
-    const handledRequestId = this._currentDuangRequestId || '';
+    let handledRequestId = '';
+    if (this._currentDuangRequestIdAndOptionalMp3File) {
+      handledRequestId = this._currentDuangRequestIdAndOptionalMp3File.requestId;
+    }
 
     this._duangRequestHandled.push({
       requestId: handledRequestId, 
@@ -175,7 +194,7 @@ class DuangOperator {
       rejectReason: null
     });
 
-    this._currentDuangRequestId = null;
+    this._currentDuangRequestIdAndOptionalMp3File = null;
     logger.log('[duang play operator] _duangFinished finished', this._duangRequestHandled);
   }
 

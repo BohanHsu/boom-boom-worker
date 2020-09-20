@@ -19,7 +19,7 @@ import type {PlayerOperatorConfig} from './playerOperator/playerOperator';
 class WorkerMaster {
   _globalSwitch: boolean;
   _shouldPlay: boolean;
-  _duangRequestQueue: Array<string>;
+  _duangRequestQueue: Array<{requestId: string, optionalMp3File?: string}>;
   _syncSuccessFinishTime: number;
 
   _messenger: HttpsMessenger;
@@ -66,7 +66,7 @@ class WorkerMaster {
     return this._globalSwitch && this._shouldPlay;
   }
 
-  getNextDuangRequestId(): ?string {
+  getNextDuangRequestIdAndOptionalMp3File(): ?{requestId: string, optionalMp3File?: string} {
     if (this._duangRequestQueue.length > 0) {
       return this._duangRequestQueue.shift();
     }
@@ -181,8 +181,16 @@ class WorkerMaster {
       this._globalSwitch = inMessage.globalSwitch;
       this._shouldPlay = !!inMessage.shouldPlay;
 
+
       if (inMessage.duang) {
-        this._duangRequestQueue.push(inMessage.duang);
+        const mp3FilePath = inMessage.mp3FilePath;
+
+        let duangRequest: {requestId: string, optionalMp3File?: string} = {requestId: inMessage.duang};
+        if (mp3FilePath) {
+          duangRequest.optionalMp3File = mp3FilePath;
+        }
+
+        this._duangRequestQueue.push(duangRequest);
       }
 
       if (inMessage.config) {

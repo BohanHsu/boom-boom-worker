@@ -64,9 +64,9 @@ class PlayerOperator {
     logger.log('[PlayerOperator] construct: times to player:', this._timesToPlay);
   }
 
-  startPlay(): void {
+  startPlay(optionalMp3File: ?string): void {
     logger.log('[PlayerOperator] startPlay');
-    this._maybePlay();
+    this._maybePlay(optionalMp3File);
   }
 
   stopPlay(): void {
@@ -99,7 +99,7 @@ class PlayerOperator {
     return timesToPlay;
   }
 
-  _maybePlay(): void {
+  _maybePlay(optionalMp3File: ?string): void {
     logger.log('[PlayerOperator] _play');
     if (!this._infinityLoop && this._playedTimes >= this._timesToPlay) {
       this._isPlaying = false;
@@ -112,7 +112,7 @@ class PlayerOperator {
     }
 
     if (this._playedTimes === 0) {
-      this._singleShootOfPlay();
+      this._singleShootOfPlay(optionalMp3File);
       return;
     }
 
@@ -128,15 +128,15 @@ class PlayerOperator {
     this._nextPlayTimeout = setTimeout(() => {
       clearTimeout(this._nextPlayTimeout);
       this._nextPlayTimeout = null;
-      this._singleShootOfPlay();
+      this._singleShootOfPlay(optionalMp3File);
     }, nextPlayDelayMS);
   }
 
-  _playFinished(): void {
+  _playFinished(optionalMp3File: ?string): void {
     this._playerController = null;
     this._playedTimes += 1;
     logger.log('[PlayerOperator] _playFinished, played times: ', this._playedTimes);
-    this._maybePlay();
+    this._maybePlay(optionalMp3File);
   }
 
   _pickMp3Files(): Array<string> {
@@ -150,7 +150,7 @@ class PlayerOperator {
     return pickedMp3Files;
   }
 
-  _singleShootOfPlay():void {
+  _singleShootOfPlay(optionalMp3File: ?string):void {
     if (this._killSwitched) {
       return;
     }
@@ -165,7 +165,14 @@ class PlayerOperator {
 
     const currentPlayerController = new PlayerController();
 
-    const mp3FilePaths = this._pickMp3Files();
+    let mp3FilePaths = [];
+
+    if (optionalMp3File == null) {
+      mp3FilePaths = this._pickMp3Files();
+    } else {
+      mp3FilePaths = [optionalMp3File];
+    }
+
     const volume = this._config.volumePercentage;
 
     const mp3s = mp3FilePaths.map((path) => {
@@ -174,7 +181,7 @@ class PlayerOperator {
     const player = new Player(currentPlayerController, mp3s);
 
     currentPlayerController.setPlayerFinishCallback(() => {
-      this._playFinished();
+      this._playFinished(optionalMp3File);
     });
     currentPlayerController.startPlayer();
     this._playerController = currentPlayerController;
