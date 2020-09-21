@@ -235,6 +235,7 @@ class WorkerMaster {
           && peekednextHandledRequest === null) {
           const restartCommand = this._config.restartWorkerScript;
           if (restartCommand) {
+            this._syncFinishCnt = 0;
             CMD_SPAWN(restartCommand, (e, stdout) => {});
           }
         }
