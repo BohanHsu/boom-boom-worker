@@ -5,6 +5,7 @@ const Mp3Files = require('./mp3Files/mp3Files');
 const Ip = require('./ip/ip');
 const ShouldPlayOperator = require('./playerOperator/shouldPlayOperator');
 const DuangOperator = require('./playerOperator/duangOperator');
+const Temperature = require('./temperature/temperature');
 
 const logger = require('./logger/logger');
 
@@ -33,6 +34,7 @@ class WorkerMaster {
     [string]: PlayerOperatorConfig|any,
     restartWorkerSyncCnt?: number,
     restartWorkerScript?: string,
+    temperatureScript?: string,
   };
   _initialConfigReceived: boolean;
 
@@ -157,6 +159,12 @@ class WorkerMaster {
       outMessage.ip = ipAddress;
     }
 
+    const temperature = this._getTemperature();
+    logger.log('[master temperature: ' + temperature + ']');
+    if (temperature.length > 0) {
+      outMessage.temperature = temperature;
+    }
+
     let nextHandledDuangRequest: ?HandledDuangRequest = null;
     const duangOperator = this._duangOperator;
     if (duangOperator) {
@@ -246,6 +254,17 @@ class WorkerMaster {
   _periodicallyRestartPi(): void {
     setTimeout(() => {
     }, 1000);
+  }
+
+  _getTemperature(): string {
+    if (this._config) {
+      const temperatureScript = this._config.temperatureScript;
+      if (temperatureScript) {
+        return Temperature.getTemperature(temperatureScript);
+      }
+    }
+
+    return '';
   }
 }
 

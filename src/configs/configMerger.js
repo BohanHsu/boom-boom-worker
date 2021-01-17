@@ -36,6 +36,7 @@ module.exports = function(oldConfig:any, newConfig:any): {
   [string]: PlayerOperatorConfig|any,
   restartWorkerSyncCnt?: number,
   restartWorkerScript?: string,
+  temperatureScript?: string,
 } {
   let mergedConfig = JSON.parse(JSON.stringify(oldConfig));
 
@@ -45,6 +46,7 @@ module.exports = function(oldConfig:any, newConfig:any): {
   inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("shouldRestartWorker", mergedConfig, newConfig);
   inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("restartWorkerSyncCnt", mergedConfig, newConfig);
   inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("restartWorkerScript", mergedConfig, newConfig);
+  inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("temperatureScript", mergedConfig, newConfig);
 
   return mergedConfig;
 };
