@@ -7,6 +7,7 @@ export type OutMessageType = {
     rejectReason?: string
   },
   config?: string,
+  temperature?: string,
 };
 
 export type InMessageType = {
