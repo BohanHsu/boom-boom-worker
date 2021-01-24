@@ -47,6 +47,7 @@ module.exports = function(oldConfig:any, newConfig:any): {
   inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("restartWorkerSyncCnt", mergedConfig, newConfig);
   inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("restartWorkerScript", mergedConfig, newConfig);
   inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("temperatureScript", mergedConfig, newConfig);
+  inPlaceMergeKeyToOldObjIfKeyExistsInNewObj("commands", mergedConfig, newConfig);
 
   return mergedConfig;
 };

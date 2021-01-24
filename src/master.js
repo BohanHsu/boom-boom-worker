@@ -12,6 +12,7 @@ const logger = require('./logger/logger');
 const defaultConfigs = require('./configs/defaultConfigs');
 const configMerger = require('./configs/configMerger');
 const {CMD_SPAWN} = require('./cmd/cmd');
+const {executeCommand} = require('./cmd/cmdExecutor');
 
 import type {HandledDuangRequest} from './playerOperator/duangOperator';
 import type {InMessageType, OutMessageType} from './messenger/messageTypes';
@@ -189,7 +190,6 @@ class WorkerMaster {
       this._globalSwitch = inMessage.globalSwitch;
       this._shouldPlay = !!inMessage.shouldPlay;
 
-
       if (inMessage.duang) {
         const mp3FilePath = inMessage.mp3FilePath;
 
@@ -203,7 +203,11 @@ class WorkerMaster {
 
       if (inMessage.config) {
         this._handleNewConfigArrival(inMessage.config);
+      }
 
+      // handle command after receive latest config
+      if (inMessage.commands) {
+        this._handleCommandKeys(inMessage.commands);
       }
 
       logger.log('WorkerMaster sync finish, shouldPlay', this._shouldPlay, this._duangRequestQueue);
@@ -214,6 +218,18 @@ class WorkerMaster {
       this._startOperator();
       this._startDuangOperator();
     });
+  }
+
+  _handleCommandKeys(commandKeys): void {
+    let commands = [];
+    commandKeys.forEach(commandKey => {
+      const command = this._config.commands[commandKey];
+      if (command) {
+        commands.push(command);
+      }
+    });
+
+    executeCommand(commands);
   }
 
   _keepSyncWithControlTower(): void {
