@@ -17,6 +17,7 @@ export type InMessageType = {
   duang?: string,
   mp3FilePath?: string,
   requireConfig?: boolean,
+  commands: {[string]: string},
 };
 
 export type OutConfigMessageType = {

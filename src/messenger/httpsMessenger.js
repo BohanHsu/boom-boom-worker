@@ -45,6 +45,11 @@ class HttpsMessenger {
           inMessage.mp3FilePath = mp3FilePath;
         }
 
+        const commands = jsonBody.commands;
+        if (commands) {
+          inMessage.commands = commands;
+        }
+
         cb(inMessage);
       }
     });
